@@ -1,4 +1,4 @@
-// api/speak.js - Proxy Deepgram TTS với log chi tiết
+// api/speak.js - Proxy Deepgram TTS tương thích Vercel Node.js mới
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -13,17 +13,12 @@ export default async function handler(req, res) {
 
   const DEEPGRAM_API_KEY = process.env.DEEPGRAM_API_KEY;
 
-  console.log('DEEPGRAM_API_KEY exists:', !!DEEPGRAM_API_KEY);  // Log để check key có load không
   if (!DEEPGRAM_API_KEY) {
-    console.error('Missing DEEPGRAM_API_KEY');
-    return res.status(500).json({ error: 'Server config error: missing API key' });
+    return res.status(500).json({ error: 'Missing DEEPGRAM_API_KEY in environment' });
   }
 
   try {
-    const deepgramUrl = `https://api.deepgram.com/v1/speak?model=${encodeURIComponent(model)}`;
-    console.log('Calling Deepgram:', deepgramUrl, 'Text length:', text.trim().length);
-
-    const response = await fetch(deepgramUrl, {
+    const deepgramResponse = await fetch(`https://api.deepgram.com/v1/speak?model=${encodeURIComponent(model)}`, {
       method: 'POST',
       headers: {
         'Authorization': `Token ${DEEPGRAM_API_KEY}`,
@@ -32,31 +27,45 @@ export default async function handler(req, res) {
       body: JSON.stringify({ text: text.trim() })
     });
 
-    console.log('Deepgram response status:', response.status);
-
-    if (!response.ok) {
-      const errText = await response.text();
-      console.error('Deepgram error response:', errText);
-      return res.status(response.status).json({ 
+    if (!deepgramResponse.ok) {
+      const errText = await deepgramResponse.text();
+      return res.status(deepgramResponse.status).json({ 
         error: 'Deepgram API error', 
-        status: response.status,
         details: errText 
       });
     }
 
+    // Fix lỗi pipe: Đọc stream và forward về client
+    if (!deepgramResponse.body) {
+      return res.status(500).json({ error: 'No response body from Deepgram' });
+    }
+
     res.setHeader('Content-Type', 'audio/mpeg');
     res.setHeader('Cache-Control', 'no-cache');
-    response.body.pipe(res);
+
+    // Dùng ReadableStream để pipe đúng cách trên Vercel
+    const reader = deepgramResponse.body.getReader();
+    const pump = async () => {
+      const { done, value } = await reader.read();
+      if (done) {
+        res.end();
+        return;
+      }
+      res.write(value);
+      await pump();
+    };
+    await pump();
 
   } catch (error) {
-    console.error('Unexpected proxy error:', error.message || error);
+    console.error('Proxy error:', error);
     return res.status(500).json({ 
       error: 'Internal server error', 
-      details: error.message || 'Unknown' 
+      details: error.message 
     });
   }
 }
 
+// Không cần bodyParser vì chúng ta stream
 export const config = {
   api: {
     bodyParser: false,
