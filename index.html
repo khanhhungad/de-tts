@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Deepgram Aura-2 TTS</title>
+    <title>Deepgram Aura-2 TTS Pro - Streaming (Prosody Consistent)</title>
     <style>
         body { font-family: 'Segoe UI', Arial, sans-serif; text-align: center; margin: 0; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; min-height: 100vh; }
         h1 { color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
@@ -14,7 +14,7 @@
         button:disabled { background: #666; }
         audio { margin: 25px; width: 90%; display: none; }
         #downloadLink { display: none; font-size: 18px; padding: 12px 30px; background: #ff6b6b; color: white; text-decoration: none; border-radius: 30px; }
-        #status { margin: 15px; padding: 12px; border-radius: 10px; font-weight: bold; }
+        #status { margin: 15px; padding: 12px; border-radius: 10px; font-weight: bold; min-height: 20px; }
         .loading { background: #ffd23f; color: #333; }
         .success { background: #00d4aa; color: white; }
         .error { background: #ff6b6b; color: white; }
@@ -25,26 +25,20 @@
 </head>
 <body>
     <div class="container">
-        <h1>🚀 Deepgram Aura-2 TTS Pro (Secure & Unlimited Text)</h1>
-        <p>Text dài bao nhiêu cũng OK • 40+ voices • Speed control</p>
+        <h1>🚀 Deepgram Aura-2 TTS Pro - Streaming Mode</h1>
+        <p>WebSocket Streaming → Giọng đều từ đầu đến cuối • Text dài 30.000+ ký tự mượt mà • Không còn choppy/prosody biến đổi</p>
         
-        <textarea id="text" placeholder="Dán script dài ở đây...">Xin chào mọi người!</textarea>
+        <textarea id="text" placeholder="Dán script dài ở đây (10.000 - 30.000 ký tự OK)...">Xin chào mọi người, đây là bản streaming WebSocket của Deepgram TTS. Giọng nói sẽ đều từ đầu đến cuối, không bị biến đổi âm lượng hay cao độ giữa các phần. Hoàn hảo cho YouTube drama Mỹ dài tập, review F&B, affiliate Amazon. Thử dán script 10.000 ký tự đi anh!</textarea>
         
         <select id="model">
-            <optgroup label="🇺🇸 Top American English Voices (2025)">
-                <option value="aura-2-thalia-en" selected>🎤 Thalia – Female (Warm, Natural – Top YouTube)</option>
-                <option value="aura-2-helena-en">🎤 Helena – Female (Friendly, Conversational)</option>
-                <option value="aura-2-hera-en">🎤 Hera – Female (Professional, Clear)</option>
-                <option value="aura-2-orion-en">🎤 Orion – Male (Deep, Authoritative)</option>
-                <option value="aura-2-apollo-en">🎤 Apollo – Male (Energetic, Friendly)</option>
-                <option value="aura-2-arcas-en">🎤 Arcas – Male (Calm, Narrative)</option>
-                <option value="aura-2-odysseus-en">🎤 Odysseus – Male (Classic, Deep – Perfect for drama!)</option>
-                <option value="aura-2-zeus-en">🎤 Zeus – Male (Powerful)</option>
-                <option value="aura-2-athena-en">🎤 Athena – Female (Wise)</option>
-                <option value="aura-2-perseus-en">🎤 Perseus – Male (Heroic)</option>
-            </optgroup>
-            <optgroup label="🌍 International Voices">
-                <option value="aura-2-hyperion-en">🇦🇺 Hyperion – Male (Australian)</option>
+            <optgroup label="🇺🇸 Top American English Voices">
+                <option value="aura-2-thalia-en" selected>🎤 Thalia – Female (Warm, Natural)</option>
+                <option value="aura-2-helena-en">🎤 Helena – Female (Friendly)</option>
+                <option value="aura-2-hera-en">🎤 Hera – Female (Professional)</option>
+                <option value="aura-2-orion-en">🎤 Orion – Male (Deep)</option>
+                <option value="aura-2-apollo-en">🎤 Apollo – Male (Energetic)</option>
+                <option value="aura-2-arcas-en">🎤 Arcas – Male (Calm)</option>
+                <option value="aura-2-odysseus-en">🎤 Odysseus – Male (Classic, Deep – Top drama!)</option>
             </optgroup>
         </select>
         
@@ -53,12 +47,12 @@
             <input type="range" id="speedSlider" min="0.5" max="2.0" step="0.1" value="1.0">
         </div>
         
-        <button id="generateBtn" onclick="generateSpeech()">🎙️ Generate Full Audio</button>
+        <button id="generateBtn" onclick="generateSpeech()">🎙️ Generate & Stream Audio</button>
         
         <div id="status"></div>
         <audio id="audioPlayer" controls></audio>
         <br>
-        <a id="downloadLink">⬇️ Download MP3 Full (Original Speed)</a>
+        <a id="downloadLink">⬇️ Download MP3 Full</a>
     </div>
 
     <script>
@@ -69,7 +63,7 @@
         speedSlider.addEventListener('input', () => {
             const speed = speedSlider.value;
             speedValue.textContent = speed + 'x';
-            if (audioPlayer.src) audioPlayer.playbackRate = speed;
+            audioPlayer.playbackRate = speed;
         });
 
         async function generateSpeech() {
@@ -89,64 +83,57 @@
                 return;
             }
 
-            const chunks = chunkText(fullText, 1900);  // An toàn dưới limit 2000 ký tự
-            updateStatus(`Đang xử lý ${chunks.length} chunk(s)... (${fullText.length} ký tự)`, 'loading');
+            updateStatus('Đang kết nối WebSocket streaming... (giọng sẽ đều từ đầu đến cuối)', 'loading');
             btn.disabled = true;
 
-            const audioBlobs = [];
-            for (let i = 0; i < chunks.length; i++) {
-                updateStatus(`Đang generate chunk ${i+1}/${chunks.length} với giọng ${model.replace('aura-2-', '').replace('-en', '')}...`, 'loading');
-
-                // GỌI QUA PROXY AN TOÀN (không còn key trong code)
+            try {
+                // Gọi proxy streaming (không chunk ở client nữa)
                 const response = await fetch('/api/speak', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ text: chunks[i], model })
+                    body: JSON.stringify({ text: fullText, model })
                 });
 
                 if (!response.ok) {
-                    const err = await response.text();
-                    updateStatus('❌ Lỗi: ' + (err || 'Unknown error'), 'error');
+                    const err = await response.json();
+                    updateStatus(`❌ Lỗi: ${err.error || err.details || 'Unknown'}`, 'error');
                     btn.disabled = false;
                     return;
                 }
 
-                const blob = await response.blob();
-                audioBlobs.push(blob);
+                // Stream audio realtime
+                const blobParts = [];
+                const reader = response.body.getReader();
+                const pump = async () => {
+                    const { done, value } = await reader.read();
+                    if (done) {
+                        // Hoàn tất stream → tạo full blob để play & download
+                        const fullBlob = new Blob(blobParts, { type: 'audio/wav' });
+                        const url = URL.createObjectURL(fullBlob);
+
+                        audioPlayer.src = url;
+                        audioPlayer.style.display = 'block';
+                        audioPlayer.playbackRate = speedSlider.value;
+                        audioPlayer.play();
+
+                        download.href = url;
+                        download.download = `deepgram-streaming-${model}-${Date.now()}.wav`;
+                        download.style.display = 'inline-block';
+
+                        updateStatus('✅ Streaming hoàn tất! Giọng đều mượt từ đầu đến cuối', 'success');
+                        btn.disabled = false;
+                        return;
+                    }
+                    blobParts.push(value);
+                    // Play realtime (optional - có thể thêm MediaSource cho true realtime)
+                    await pump();
+                };
+                await pump();
+
+            } catch (error) {
+                updateStatus('❌ Lỗi kết nối: ' + error.message, 'error');
+                btn.disabled = false;
             }
-
-            // Ghép các chunk thành file MP3 đầy đủ
-            const fullBlob = new Blob(audioBlobs, { type: 'audio/mpeg' });
-            const url = URL.createObjectURL(fullBlob);
-
-            audioPlayer.src = url;
-            audioPlayer.style.display = 'block';
-            audioPlayer.playbackRate = speedSlider.value;
-            audioPlayer.play();
-
-            download.href = url;
-            download.download = `deepgram-${model}-${Date.now()}.mp3`;
-            download.style.display = 'inline-block';
-
-            updateStatus(`✅ Thành công! Đã ghép ${chunks.length} chunk – Giọng: ${model.replace('aura-2-', '').replace('-en', '')}`, 'success');
-            btn.disabled = false;
-        }
-
-        function chunkText(text, maxLength) {
-            // Chia thông minh theo câu để natural hơn
-            const sentences = text.match(/[^.!?]+[.!?]*/g) || [text];
-            const chunks = [];
-            let current = '';
-            for (const sent of sentences) {
-                if ((current + sent).length > maxLength) {
-                    if (current) chunks.push(current.trim());
-                    current = sent;
-                } else {
-                    current += ' ' + sent;
-                }
-            }
-            if (current) chunks.push(current.trim());
-            return chunks.filter(chunk => chunk);
         }
 
         function updateStatus(msg, type) {
@@ -155,7 +142,7 @@
             s.className = type;
         }
 
-        // Shortcut: Ctrl + Enter để generate nhanh
+        // Ctrl + Enter shortcut
         document.getElementById('text').addEventListener('keydown', function(e) {
             if (e.key === 'Enter' && e.ctrlKey) {
                 e.preventDefault();
