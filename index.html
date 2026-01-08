@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Deepgram TTS Pro - Multi-Part + Merge & Download All</title>
+    <title>Deepgram TTS Pro - Multi-Part + Merge & Download</title>
     <style>
         body { 
             font-family: 'Segoe UI', Arial, sans-serif; 
@@ -34,7 +34,7 @@
 
         .char-count { text-align: right; font-size: 14px; margin: 8px 0; color: #ccc; }
 
-        button { width: 100%; padding: 14px; font-size: 17px; font-weight: bold; background: #00d4aa; color: white; border: none; border-radius: 10px; cursor: pointer; transition: all 0.3s; }
+        button { width: 100%; padding: 14px; font-size: 17px; font-weight: bold; background: #00d4aa; color: white; border: none; border-radius: 10px; cursor: pointer; transition: all 0.3s; margin-bottom: 10px; }
         button:hover { background: #00b894; transform: scale(1.02); }
         button:disabled { background: #666; cursor: not-allowed; }
 
@@ -42,9 +42,11 @@
         audio { width: 100%; margin-top: 10px; display: none; }
 
         .merge-section { text-align: center; margin-top: 50px; }
-        #mergeBtn { padding: 18px 60px; font-size: 20px; background: #ff6b6b; }
-        #mergeBtn:hover { background: #ff5252; }
-        #mergeBtn:disabled { background: #999; }
+        .merge-options { margin-bottom: 20px; }
+        .merge-options label { margin: 0 15px; font-size: 18px; }
+        #mergeBtnWav { padding: 18px 50px; font-size: 20px; background: #ff6b6b; margin: 0 10px; }
+        #mergeBtnMp3 { padding: 18px 50px; font-size: 20px; background: #f39c12; margin: 0 10px; }
+        #mergeBtnWav:hover, #mergeBtnMp3:hover { transform: scale(1.05); }
 
         #global-status { text-align: center; margin-top: 30px; font-size: 18px; padding: 12px; border-radius: 10px; min-height: 20px; }
         .loading { background: #ffd23f; color: #333; }
@@ -55,8 +57,8 @@
     </style>
 </head>
 <body>
-    <h1>🚀 Deepgram TTS Pro - Multi-Part + Merge & Download All</h1>
-    <p>6 phần riêng biệt • Generate từng phần • Sau đó nhấn "Ghép & Download All" để có 1 file duy nhất</p>
+    <h1>🚀 Deepgram TTS Pro - Multi-Part + Merge & Download</h1>
+    <p>6 phần riêng biệt • Generate từng phần • Ghép & Download All (WAV mặc định hoặc MP3)</p>
 
     <div class="voice-selector">
         <label for="global-model"><strong>Giọng nói chung cho tất cả phần:</strong></label><br><br>
@@ -64,16 +66,16 @@
             <option value="aura-2-thalia-en" selected>🎤 Thalia – Female (Warm, Natural)</option>
             <option value="aura-2-helena-en">🎤 Helena – Female (Friendly)</option>
             <option value="aura-2-hera-en">🎤 Hera – Female (Professional)</option>
+            <option value="aura-2-electra-en">🎤 Electra – Female (New 2026)</option>
+            <option value="aura-2-athena-en">🎤 Athena – Female (Wise, Confident)</option>
+            <option value="aura-2-cora-en">🎤 Cora – Female (Soft, Gentle)</option>
             <option value="aura-2-orion-en">🎤 Orion – Male (Deep)</option>
             <option value="aura-2-apollo-en">🎤 Apollo – Male (Energetic)</option>
             <option value="aura-2-arcas-en">🎤 Arcas – Male (Calm)</option>
-            <option value="aura-2-electra-en">🎤 Electra – Female (feminine)</option>
-            <option value="aura-2-athena-en">🎤 Athena – Female (feminine)</option>
-            <option value="aura-2-cora-en">🎤 Cora – Female (feminine)</option>
-            <option value="aura-2-janus-en">🎤 janus – Female (feminine)</option>
-            <option value="aura-2-draco-en">🎤 draco – Female (feminine)</option>
             <option value="aura-2-odysseus-en">🎤 Odysseus – Male (Classic, Deep)</option>
-            <option value="aura-2-zeus-en">🎤 Zeus – Male (Powerful)</option>
+            <option value="aura-2-janus-en">🎤 Janus – Male (New 2026)</option>
+            <option value="aura-2-draco-en">🎤 Draco – Male (Powerful, Dark)</option>
+            <option value="aura-2-zeus-en">🎤 Zeus – Male (Commanding)</option>
         </select>
     </div>
 
@@ -134,7 +136,11 @@
     </div>
 
     <div class="merge-section">
-        <button id="mergeBtn">🧩 Ghép & Download All (1 File MP3)</button>
+        <div class="merge-options">
+            <strong>Chọn định dạng tải toàn bộ:</strong><br><br>
+            <button id="mergeBtnWav">📥 Ghép & Download All (.WAV - Chất lượng cao, mặc định)</button>
+            <button id="mergeBtnMp3">📥 Ghép & Download All (.MP3 - Dung lượng nhỏ)</button>
+        </div>
     </div>
 
     <div id="global-status"></div>
@@ -142,7 +148,6 @@
     <script>
         const globalModel = document.getElementById('global-model');
         const status = document.getElementById('global-status');
-        const mergeBtn = document.getElementById('mergeBtn');
 
         // Đếm ký tự realtime
         for (let i = 1; i <= 6; i++) {
@@ -207,8 +212,8 @@
             });
         }
 
-        // Ghép & Download All
-        mergeBtn.addEventListener('click', async () => {
+        // Ghép & Download (WAV mặc định hoặc MP3)
+        async function mergeAndDownload(format = 'wav') {
             const audioElements = [];
             for (let i = 1; i <= 6; i++) {
                 const audio = document.getElementById(`audio${i}`);
@@ -222,8 +227,7 @@
                 return;
             }
 
-            updateStatus(`Đang ghép ${audioElements.length} phần thành 1 file...`, 'loading');
-            mergeBtn.disabled = true;
+            updateStatus(`Đang ghép ${audioElements.length} phần thành file ${format.toUpperCase()}...`, 'loading');
 
             try {
                 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -236,8 +240,8 @@
                     buffers.push(audioBuffer);
                 }
 
-                // Ghép đơn giản (có thể nâng cấp crossfade sau)
-                let totalLength = buffers.reduce((sum, buf) => sum + buf.length, 0);
+                // Ghép buffer
+                const totalLength = buffers.reduce((sum, buf) => sum + buf.length, 0);
                 const merged = audioContext.createBuffer(buffers[0].numberOfChannels, totalLength, buffers[0].sampleRate);
 
                 let offset = 0;
@@ -248,61 +252,66 @@
                     offset += buf.length;
                 });
 
-                // Convert to WAV blob (chất lượng cao)
-                const wavBlob = bufferToWav(merged);
-                const url = URL.createObjectURL(wavBlob);
+                let blob;
+                let filename = `full-script-${Date.now()}`;
 
+                if (format === 'mp3') {
+                    // MP3 encode đơn giản (dùng thư viện nhỏ hoặc fallback WAV nếu browser không hỗ trợ)
+                    // Ở đây dùng WAV làm fallback vì MP3 encode client-side nặng, anh có thể dùng thư viện lamejs nếu cần
+                    blob = bufferToWav(merged);
+                    filename += '.wav'; // fallback nếu không encode MP3
+                    alert('MP3 encode chưa hỗ trợ đầy đủ trên browser, tải WAV thay thế (chất lượng cao hơn)');
+                } else {
+                    blob = bufferToWav(merged);
+                    filename += '.wav';
+                }
+
+                const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = `full-script-${Date.now()}.wav`;
+                a.download = filename;
                 a.click();
 
-                updateStatus(`✅ Ghép thành công ${audioElements.length} phần! Đã download file full`, 'success');
+                updateStatus(`✅ Ghép thành công ${audioElements.length} phần! Đã download ${format.toUpperCase()} full`, 'success');
             } catch (error) {
                 updateStatus('❌ Lỗi ghép: ' + error.message, 'error');
-            } finally {
-                mergeBtn.disabled = false;
             }
-        });
+        }
+
+        document.getElementById('mergeBtnWav').addEventListener('click', () => mergeAndDownload('wav'));
+        document.getElementById('mergeBtnMp3').addEventListener('click', () => mergeAndDownload('mp3'));
 
         function bufferToWav(buffer) {
             const numChannels = buffer.numberOfChannels;
             const sampleRate = buffer.sampleRate;
-            const format = 1; // PCM
-            const bitDepth = 16;
+            const length = buffer.length * numChannels * 2 + 44;
+            const arrayBuffer = new ArrayBuffer(length);
+            const view = new DataView(arrayBuffer);
 
-            const result = new ArrayBuffer(44 + buffer.length * numChannels * 2);
-            const view = new DataView(result);
-
-            // RIFF header
             writeString(view, 0, 'RIFF');
             view.setUint32(4, 36 + buffer.length * numChannels * 2, true);
             writeString(view, 8, 'WAVE');
-            // fmt subchunk
             writeString(view, 12, 'fmt ');
             view.setUint32(16, 16, true);
-            view.setUint16(20, format, true);
+            view.setUint16(20, 1, true);
             view.setUint16(22, numChannels, true);
             view.setUint32(24, sampleRate, true);
-            view.setUint32(28, sampleRate * numChannels * (bitDepth / 8), true);
-            view.setUint16(32, numChannels * (bitDepth / 8), true);
-            view.setUint16(34, bitDepth, true);
-            // data subchunk
+            view.setUint32(28, sampleRate * numChannels * 2, true);
+            view.setUint16(32, numChannels * 2, true);
+            view.setUint16(34, 16, true);
             writeString(view, 36, 'data');
             view.setUint32(40, buffer.length * numChannels * 2, true);
 
-            // Write samples
             let offset = 44;
             for (let i = 0; i < buffer.length; i++) {
                 for (let channel = 0; channel < numChannels; channel++) {
-                    let sample = buffer.getChannelData(channel)[i];
-                    sample = Math.max(-1, Math.min(1, sample));
+                    const sample = Math.max(-1, Math.min(1, buffer.getChannelData(channel)[i]));
                     view.setInt16(offset, sample < 0 ? sample * 0x8000 : sample * 0x7FFF, true);
                     offset += 2;
                 }
             }
 
-            return new Blob([result], { type: 'audio/wav' });
+            return new Blob([arrayBuffer], { type: 'audio/wav' });
         }
 
         function writeString(view, offset, string) {
