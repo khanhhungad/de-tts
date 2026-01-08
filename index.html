@@ -3,152 +3,275 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Deepgram Aura-2 TTS Pro - Streaming (Prosody Consistent)</title>
+    <title>Deepgram TTS Pro - Multi-Part Editor (2 Cột 6 Phần)</title>
     <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; text-align: center; margin: 0; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; min-height: 100vh; }
-        h1 { color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
-        .container { background: rgba(255,255,255,0.15); padding: 30px; border-radius: 20px; backdrop-filter: blur(10px); max-width: 900px; margin: 20px auto; box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
-        textarea { width: 90%; height: 200px; padding: 15px; font-size: 17px; border: none; border-radius: 12px; resize: vertical; background: rgba(255,255,255,0.95); color: #333; }
-        select, button { padding: 14px 20px; margin: 10px; font-size: 16px; border-radius: 10px; border: none; }
-        button { background: #00d4aa; color: white; cursor: pointer; font-weight: bold; }
-        button:disabled { background: #666; }
-        audio { margin: 25px; width: 90%; display: none; }
-        #downloadLink { display: none; font-size: 18px; padding: 12px 30px; background: #ff6b6b; color: white; text-decoration: none; border-radius: 30px; }
-        #status { margin: 15px; padding: 12px; border-radius: 10px; font-weight: bold; min-height: 20px; }
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            margin: 0; 
+            padding: 20px; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            color: white; 
+            min-height: 100vh; 
+        }
+        h1 { text-align: center; text-shadow: 0 2px 4px rgba(0,0,0,0.3); margin-bottom: 10px; }
+        p { text-align: center; margin-bottom: 30px; opacity: 0.9; }
+
+        .voice-selector {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .voice-selector select {
+            padding: 12px 20px;
+            font-size: 18px;
+            border-radius: 10px;
+            border: none;
+            background: white;
+            color: #333;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .part {
+            background: rgba(255,255,255,0.15);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+
+        .part h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        textarea {
+            width: 100%;
+            height: 180px;
+            padding: 12px;
+            font-size: 16px;
+            border: none;
+            border-radius: 10px;
+            resize: vertical;
+            background: rgba(255,255,255,0.95);
+            color: #333;
+            box-sizing: border-box;
+        }
+
+        .char-count {
+            text-align: right;
+            font-size: 14px;
+            margin: 8px 0;
+            color: #ccc;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            font-size: 17px;
+            font-weight: bold;
+            background: #00d4aa;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        button:hover { background: #00b894; transform: scale(1.02); }
+        button:disabled { background: #666; cursor: not-allowed; }
+
+        .audio-section {
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        audio {
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        #global-status {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 18px;
+            padding: 12px;
+            border-radius: 10px;
+            min-height: 20px;
+        }
         .loading { background: #ffd23f; color: #333; }
-        .success { background: #00d4aa; color: white; }
-        .error { background: #ff6b6b; color: white; }
-        .speed-control { margin: 20px; font-size: 16px; }
-        .speed-control label { display: block; margin-bottom: 10px; }
-        .speed-control input { width: 80%; }
+        .success { background: #00d4aa; }
+        .error { background: #ff6b6b; }
+
+        @media (max-width: 900px) {
+            .grid { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🚀 Deepgram Aura-2 TTS Pro - Streaming Mode</h1>
-        <p>WebSocket Streaming → Giọng đều từ đầu đến cuối • Text dài 30.000+ ký tự mượt mà • Không còn choppy/prosody biến đổi</p>
-        
-        <textarea id="text" placeholder="Dán script dài ở đây (10.000 - 30.000 ký tự OK)...">Xin chào mọi người, đây là bản streaming WebSocket của Deepgram TTS. Giọng nói sẽ đều từ đầu đến cuối, không bị biến đổi âm lượng hay cao độ giữa các phần. Hoàn hảo cho YouTube drama Mỹ dài tập, review F&B, affiliate Amazon. Thử dán script 10.000 ký tự đi anh!</textarea>
-        
-        <select id="model">
-            <optgroup label="🇺🇸 Top American English Voices">
-                <option value="aura-2-thalia-en" selected>🎤 Thalia – Female (Warm, Natural)</option>
-                <option value="aura-2-helena-en">🎤 Helena – Female (Friendly)</option>
-                <option value="aura-2-hera-en">🎤 Hera – Female (Professional)</option>
-                <option value="aura-2-orion-en">🎤 Orion – Male (Deep)</option>
-                <option value="aura-2-apollo-en">🎤 Apollo – Male (Energetic)</option>
-                <option value="aura-2-arcas-en">🎤 Arcas – Male (Calm)</option>
-                <option value="aura-2-odysseus-en">🎤 Odysseus – Male (Classic, Deep – Top drama!)</option>
-            </optgroup>
+    <h1>🚀 Deepgram TTS Pro - Multi-Part Editor</h1>
+    <p>2 cột × 3 phần = 6 đoạn script riêng biệt (mỗi đoạn < 2000 ký tự) • Chọn giọng chung • Generate riêng từng phần</p>
+
+    <div class="voice-selector">
+        <label for="global-model"><strong>Chọn giọng nói chung cho tất cả phần:</strong></label><br><br>
+        <select id="global-model">
+            <option value="aura-2-thalia-en" selected>🎤 Thalia – Female (Warm, Natural – Top YouTube)</option>
+            <option value="aura-2-helena-en">🎤 Helena – Female (Friendly)</option>
+            <option value="aura-2-hera-en">🎤 Hera – Female (Professional)</option>
+            <option value="aura-2-orion-en">🎤 Orion – Male (Deep)</option>
+            <option value="aura-2-apollo-en">🎤 Apollo – Male (Energetic)</option>
+            <option value="aura-2-odysseus-en">🎤 Odysseus – Male (Classic, Deep – Drama)</option>
+            <option value="aura-2-zeus-en">🎤 Zeus – Male (Powerful)</option>
         </select>
-        
-        <div class="speed-control">
-            <label>🚀 Tốc độ phát (Speed): <span id="speedValue">1.0x</span></label>
-            <input type="range" id="speedSlider" min="0.5" max="2.0" step="0.1" value="1.0">
-        </div>
-        
-        <button id="generateBtn" onclick="generateSpeech()">🎙️ Generate & Stream Audio</button>
-        
-        <div id="status"></div>
-        <audio id="audioPlayer" controls></audio>
-        <br>
-        <a id="downloadLink">⬇️ Download MP3 Full</a>
     </div>
 
+    <div class="grid">
+        <!-- Phần 1 -->
+        <div class="part">
+            <h3>Phần 1</h3>
+            <textarea id="text1" placeholder="Dán đoạn script đầu tiên (< 2000 ký tự)..."></textarea>
+            <div class="char-count"><span id="count1">0</span>/2000 ký tự</div>
+            <button id="btn1">🎙️ Generate Phần 1</button>
+            <div class="audio-section">
+                <audio id="audio1" controls></audio>
+            </div>
+        </div>
+
+        <!-- Phần 4 -->
+        <div class="part">
+            <h3>Phần 4</h3>
+            <textarea id="text4" placeholder="Dán đoạn script thứ tư..."></textarea>
+            <div class="char-count"><span id="count4">0</span>/2000 ký tự</div>
+            <button id="btn4">🎙️ Generate Phần 4</button>
+            <div class="audio-section">
+                <audio id="audio4" controls></audio>
+            </div>
+        </div>
+
+        <!-- Phần 2 -->
+        <div class="part">
+            <h3>Phần 2</h3>
+            <textarea id="text2" placeholder="Dán đoạn script thứ hai..."></textarea>
+            <div class="char-count"><span id="count2">0</span>/2000 ký tự</div>
+            <button id="btn2">🎙️ Generate Phần 2</button>
+            <div class="audio-section">
+                <audio id="audio2" controls></audio>
+            </div>
+        </div>
+
+        <!-- Phần 5 -->
+        <div class="part">
+            <h3>Phần 5</h3>
+            <textarea id="text5" placeholder="Dán đoạn script thứ năm..."></textarea>
+            <div class="char-count"><span id="count5">0</span>/2000 ký tự</div>
+            <button id="btn5">🎙️ Generate Phần 5</button>
+            <div class="audio-section">
+                <audio id="audio5" controls></audio>
+            </div>
+        </div>
+
+        <!-- Phần 3 -->
+        <div class="part">
+            <h3>Phần 3</h3>
+            <textarea id="text3" placeholder="Dán đoạn script thứ ba..."></textarea>
+            <div class="char-count"><span id="count3">0</span>/2000 ký tự</div>
+            <button id="btn3">🎙️ Generate Phần 3</button>
+            <div class="audio-section">
+                <audio id="audio3" controls></audio>
+            </div>
+        </div>
+
+        <!-- Phần 6 -->
+        <div class="part">
+            <h3>Phần 6</h3>
+            <textarea id="text6" placeholder="Dán đoạn script cuối cùng..."></textarea>
+            <div class="char-count"><span id="count6">0</span>/2000 ký tự</div>
+            <button id="btn6">🎙️ Generate Phần 6</button>
+            <div class="audio-section">
+                <audio id="audio6" controls></audio>
+            </div>
+        </div>
+    </div>
+
+    <div id="global-status"></div>
+
     <script>
-        const speedSlider = document.getElementById('speedSlider');
-        const speedValue = document.getElementById('speedValue');
-        const audioPlayer = document.getElementById('audioPlayer');
+        const globalModel = document.getElementById('global-model');
 
-        speedSlider.addEventListener('input', () => {
-            const speed = speedSlider.value;
-            speedValue.textContent = speed + 'x';
-            audioPlayer.playbackRate = speed;
-        });
+        // Đếm ký tự realtime cho từng phần
+        for (let i = 1; i <= 6; i++) {
+            const textarea = document.getElementById(`text${i}`);
+            const count = document.getElementById(`count${i}`);
+            textarea.addEventListener('input', () => {
+                count.textContent = textarea.value.length;
+                count.style.color = textarea.value.length > 2000 ? 'red' : '#ccc';
+            });
+        }
 
-        async function generateSpeech() {
-            const fullText = document.getElementById('text').value.trim();
-            const model = document.getElementById('model').value;
-            const btn = document.getElementById('generateBtn');
-            const status = document.getElementById('status');
-            const download = document.getElementById('downloadLink');
+        // Generate riêng từng phần
+        for (let i = 1; i <= 6; i++) {
+            const btn = document.getElementById(`btn${i}`);
+            const textarea = document.getElementById(`text${i}`);
+            const audio = document.getElementById(`audio${i}`);
+            const status = document.getElementById('global-status');
 
-            audioPlayer.style.display = 'none';
-            download.style.display = 'none';
-            status.textContent = '';
-            status.className = '';
+            btn.addEventListener('click', async () => {
+                const text = textarea.value.trim();
+                const model = globalModel.value;
 
-            if (!fullText) {
-                updateStatus('❌ Vui lòng nhập text!', 'error');
-                return;
-            }
-
-            updateStatus('Đang kết nối WebSocket streaming... (giọng sẽ đều từ đầu đến cuối)', 'loading');
-            btn.disabled = true;
-
-            try {
-                // Gọi proxy streaming (không chunk ở client nữa)
-                const response = await fetch('/api/speak', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ text: fullText, model })
-                });
-
-                if (!response.ok) {
-                    const err = await response.json();
-                    updateStatus(`❌ Lỗi: ${err.error || err.details || 'Unknown'}`, 'error');
-                    btn.disabled = false;
+                if (!text) {
+                    status.textContent = '❌ Nhập text cho phần này!';
+                    status.className = 'error';
                     return;
                 }
 
-                // Stream audio realtime
-                const blobParts = [];
-                const reader = response.body.getReader();
-                const pump = async () => {
-                    const { done, value } = await reader.read();
-                    if (done) {
-                        // Hoàn tất stream → tạo full blob để play & download
-                        const fullBlob = new Blob(blobParts, { type: 'audio/wav' });
-                        const url = URL.createObjectURL(fullBlob);
+                if (text.length > 2000) {
+                    status.textContent = '❌ Phần này vượt 2000 ký tự!';
+                    status.className = 'error';
+                    return;
+                }
 
-                        audioPlayer.src = url;
-                        audioPlayer.style.display = 'block';
-                        audioPlayer.playbackRate = speedSlider.value;
-                        audioPlayer.play();
+                btn.disabled = true;
+                btn.textContent = '⏳ Đang generate...';
+                status.textContent = `Đang generate Phần ${i}...`;
+                status.className = 'loading';
 
-                        download.href = url;
-                        download.download = `deepgram-streaming-${model}-${Date.now()}.wav`;
-                        download.style.display = 'inline-block';
+                try {
+                    const response = await fetch('/api/speak', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ text, model })
+                    });
 
-                        updateStatus('✅ Streaming hoàn tất! Giọng đều mượt từ đầu đến cuối', 'success');
-                        btn.disabled = false;
-                        return;
+                    if (!response.ok) {
+                        const err = await response.json();
+                        throw new Error(err.error || err.details || 'Lỗi không xác định');
                     }
-                    blobParts.push(value);
-                    // Play realtime (optional - có thể thêm MediaSource cho true realtime)
-                    await pump();
-                };
-                await pump();
 
-            } catch (error) {
-                updateStatus('❌ Lỗi kết nối: ' + error.message, 'error');
-                btn.disabled = false;
-            }
+                    const blob = await response.blob();
+                    const url = URL.createObjectURL(blob);
+
+                    audio.src = url;
+                    audio.style.display = 'block';
+                    audio.play();
+
+                    status.textContent = `✅ Phần ${i} hoàn thành!`;
+                    status.className = 'success';
+
+                } catch (error) {
+                    status.textContent = `❌ Lỗi Phần ${i}: ${error.message}`;
+                    status.className = 'error';
+                } finally {
+                    btn.disabled = false;
+                    btn.textContent = `🎙️ Generate Phần ${i}`;
+                }
+            });
         }
-
-        function updateStatus(msg, type) {
-            const s = document.getElementById('status');
-            s.textContent = msg;
-            s.className = type;
-        }
-
-        // Ctrl + Enter shortcut
-        document.getElementById('text').addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' && e.ctrlKey) {
-                e.preventDefault();
-                generateSpeech();
-            }
-        });
     </script>
 </body>
 </html>
