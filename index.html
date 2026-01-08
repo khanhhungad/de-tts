@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Deepgram TTS Pro - Multi-Part + Merge All</title>
+    <title>Deepgram TTS Pro - Multi-Part + Merge & Download All</title>
     <style>
         body { 
             font-family: 'Segoe UI', Arial, sans-serif; 
@@ -39,18 +39,12 @@
         button:disabled { background: #666; cursor: not-allowed; }
 
         .audio-section { margin-top: 15px; text-align: center; }
-        audio { width: 100%; margin-top: 10px; }
+        audio { width: 100%; margin-top: 10px; display: none; }
 
-        .merge-section {
-            text-align: center;
-            margin-top: 40px;
-        }
-        #mergeBtn {
-            padding: 18px 60px;
-            font-size: 20px;
-            background: #ff6b6b;
-        }
+        .merge-section { text-align: center; margin-top: 50px; }
+        #mergeBtn { padding: 18px 60px; font-size: 20px; background: #ff6b6b; }
         #mergeBtn:hover { background: #ff5252; }
+        #mergeBtn:disabled { background: #999; }
 
         #global-status { text-align: center; margin-top: 30px; font-size: 18px; padding: 12px; border-radius: 10px; min-height: 20px; }
         .loading { background: #ffd23f; color: #333; }
@@ -62,24 +56,76 @@
 </head>
 <body>
     <h1>🚀 Deepgram TTS Pro - Multi-Part + Merge & Download All</h1>
-    <p>6 phần riêng biệt • Generate từng phần • Sau đó nhấn "Ghép & Download All" để có 1 file MP3 duy nhất</p>
+    <p>6 phần riêng biệt • Generate từng phần • Sau đó nhấn "Ghép & Download All" để có 1 file duy nhất</p>
 
     <div class="voice-selector">
-        <label for="global-model"><strong>Giọng nói chung:</strong></label><br><br>
+        <label for="global-model"><strong>Giọng nói chung cho tất cả phần:</strong></label><br><br>
         <select id="global-model">
-            <option value="aura-2-thalia-en" selected>🎤 Thalia – Female (Warm)</option>
+            <option value="aura-2-thalia-en" selected>🎤 Thalia – Female (Warm, Natural)</option>
             <option value="aura-2-helena-en">🎤 Helena – Female (Friendly)</option>
             <option value="aura-2-hera-en">🎤 Hera – Female (Professional)</option>
             <option value="aura-2-orion-en">🎤 Orion – Male (Deep)</option>
             <option value="aura-2-apollo-en">🎤 Apollo – Male (Energetic)</option>
-            <option value="aura-2-odysseus-en">🎤 Odysseus – Male (Classic, Drama)</option>
+            <option value="aura-2-arcas-en">🎤 Arcas – Male (Calm)</option>
+            <option value="aura-2-odysseus-en">🎤 Odysseus – Male (Classic, Deep)</option>
+            <option value="aura-2-zeus-en">🎤 Zeus – Male (Powerful)</option>
         </select>
     </div>
 
     <div class="grid">
-        <!-- 6 phần giống bản trước -->
-        <!-- (Mình giữ nguyên cấu trúc 6 phần như bản trước để ngắn gọn, anh copy từ bản cũ vào đây hoặc dùng code đầy đủ mình gửi trước) -->
-        <!-- Phần 1 đến Phần 6 với textarea, count, button, audio -->
+        <!-- Phần 1 -->
+        <div class="part">
+            <h3>Phần 1</h3>
+            <textarea id="text1" placeholder="Dán đoạn script đầu (< 2000 ký tự)..."></textarea>
+            <div class="char-count"><span id="count1">0</span>/2000 ký tự</div>
+            <button id="btn1">🎙️ Generate Phần 1</button>
+            <div class="audio-section"><audio id="audio1" controls></audio></div>
+        </div>
+
+        <!-- Phần 4 -->
+        <div class="part">
+            <h3>Phần 4</h3>
+            <textarea id="text4" placeholder="Dán đoạn script thứ 4..."></textarea>
+            <div class="char-count"><span id="count4">0</span>/2000 ký tự</div>
+            <button id="btn4">🎙️ Generate Phần 4</button>
+            <div class="audio-section"><audio id="audio4" controls></audio></div>
+        </div>
+
+        <!-- Phần 2 -->
+        <div class="part">
+            <h3>Phần 2</h3>
+            <textarea id="text2" placeholder="Dán đoạn script thứ 2..."></textarea>
+            <div class="char-count"><span id="count2">0</span>/2000 ký tự</div>
+            <button id="btn2">🎙️ Generate Phần 2</button>
+            <div class="audio-section"><audio id="audio2" controls></audio></div>
+        </div>
+
+        <!-- Phần 5 -->
+        <div class="part">
+            <h3>Phần 5</h3>
+            <textarea id="text5" placeholder="Dán đoạn script thứ 5..."></textarea>
+            <div class="char-count"><span id="count5">0</span>/2000 ký tự</div>
+            <button id="btn5">🎙️ Generate Phần 5</button>
+            <div class="audio-section"><audio id="audio5" controls></audio></div>
+        </div>
+
+        <!-- Phần 3 -->
+        <div class="part">
+            <h3>Phần 3</h3>
+            <textarea id="text3" placeholder="Dán đoạn script thứ 3..."></textarea>
+            <div class="char-count"><span id="count3">0</span>/2000 ký tự</div>
+            <button id="btn3">🎙️ Generate Phần 3</button>
+            <div class="audio-section"><audio id="audio3" controls></audio></div>
+        </div>
+
+        <!-- Phần 6 -->
+        <div class="part">
+            <h3>Phần 6</h3>
+            <textarea id="text6" placeholder="Dán đoạn script cuối..."></textarea>
+            <div class="char-count"><span id="count6">0</span>/2000 ký tự</div>
+            <button id="btn6">🎙️ Generate Phần 6</button>
+            <div class="audio-section"><audio id="audio6" controls></audio></div>
+        </div>
     </div>
 
     <div class="merge-section">
@@ -89,12 +135,74 @@
     <div id="global-status"></div>
 
     <script>
-        // Giữ nguyên phần generate riêng từng phần như bản trước (6 phần)
-
-        // Thêm phần ghép all
-        const mergeBtn = document.getElementById('mergeBtn');
+        const globalModel = document.getElementById('global-model');
         const status = document.getElementById('global-status');
+        const mergeBtn = document.getElementById('mergeBtn');
 
+        // Đếm ký tự realtime
+        for (let i = 1; i <= 6; i++) {
+            const textarea = document.getElementById(`text${i}`);
+            const count = document.getElementById(`count${i}`);
+            textarea.addEventListener('input', () => {
+                const len = textarea.value.length;
+                count.textContent = len;
+                count.style.color = len > 2000 ? 'red' : '#ccc';
+            });
+        }
+
+        // Generate riêng từng phần
+        for (let i = 1; i <= 6; i++) {
+            const btn = document.getElementById(`btn${i}`);
+            const textarea = document.getElementById(`text${i}`);
+            const audio = document.getElementById(`audio${i}`);
+
+            btn.addEventListener('click', async () => {
+                const text = textarea.value.trim();
+                const model = globalModel.value;
+
+                if (!text) {
+                    updateStatus(`❌ Phần ${i}: Nhập text đi anh!`, 'error');
+                    return;
+                }
+                if (text.length > 2000) {
+                    updateStatus(`❌ Phần ${i}: Vượt 2000 ký tự!`, 'error');
+                    return;
+                }
+
+                btn.disabled = true;
+                btn.textContent = '⏳ Đang generate...';
+                updateStatus(`Đang generate Phần ${i}...`, 'loading');
+
+                try {
+                    const response = await fetch('/api/speak', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ text, model })
+                    });
+
+                    if (!response.ok) {
+                        const err = await response.json();
+                        throw new Error(err.error || err.details || 'Lỗi không xác định');
+                    }
+
+                    const blob = await response.blob();
+                    const url = URL.createObjectURL(blob);
+
+                    audio.src = url;
+                    audio.style.display = 'block';
+                    audio.play();
+
+                    updateStatus(`✅ Phần ${i} hoàn thành!`, 'success');
+                } catch (error) {
+                    updateStatus(`❌ Phần ${i}: ${error.message}`, 'error');
+                } finally {
+                    btn.disabled = false;
+                    btn.textContent = `🎙️ Generate Phần ${i}`;
+                }
+            });
+        }
+
+        // Ghép & Download All
         mergeBtn.addEventListener('click', async () => {
             const audioElements = [];
             for (let i = 1; i <= 6; i++) {
@@ -105,7 +213,7 @@
             }
 
             if (audioElements.length === 0) {
-                updateStatus('❌ Chưa có phần nào được generate!', 'error');
+                updateStatus('❌ Chưa generate phần nào!', 'error');
                 return;
             }
 
@@ -123,73 +231,73 @@
                     buffers.push(audioBuffer);
                 }
 
-                // Ghép buffer với crossfade nhẹ
-                const totalLength = buffers.reduce((sum, buf) => sum + buf.length, 0);
-                const sampleRate = buffers[0].sampleRate;
-                const merged = audioContext.createBuffer(buffers[0].numberOfChannels, totalLength, sampleRate);
+                // Ghép đơn giản (có thể nâng cấp crossfade sau)
+                let totalLength = buffers.reduce((sum, buf) => sum + buf.length, 0);
+                const merged = audioContext.createBuffer(buffers[0].numberOfChannels, totalLength, buffers[0].sampleRate);
 
                 let offset = 0;
-                buffers.forEach((buf, index) => {
-                    for (let channel = 0; channel < buf.numberOfChannels; channel++) {
-                        const channelData = merged.getChannelData(channel);
-                        const bufData = buf.getChannelData(channel);
-                        channelData.set(bufData, offset);
+                buffers.forEach(buf => {
+                    for (let ch = 0; ch < buf.numberOfChannels; ch++) {
+                        merged.getChannelData(ch).set(buf.getChannelData(ch), offset);
                     }
                     offset += buf.length;
                 });
 
-                // Convert to Blob MP3 (gần đúng, hoặc WAV nếu cần chính xác)
+                // Convert to WAV blob (chất lượng cao)
                 const wavBlob = bufferToWav(merged);
                 const url = URL.createObjectURL(wavBlob);
 
-                const downloadLink = document.createElement('a');
-                downloadLink.href = url;
-                downloadLink.download = `full-script-${Date.now()}.wav`;  // hoặc .mp3 nếu encode
-                downloadLink.click();
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `full-script-${Date.now()}.wav`;
+                a.click();
 
                 updateStatus(`✅ Ghép thành công ${audioElements.length} phần! Đã download file full`, 'success');
-
             } catch (error) {
-                updateStatus('❌ Lỗi ghép file: ' + error.message, 'error');
+                updateStatus('❌ Lỗi ghép: ' + error.message, 'error');
             } finally {
                 mergeBtn.disabled = false;
             }
         });
 
-        // Hàm bufferToWav đơn giản (anh có thể dùng thư viện nếu cần MP3)
         function bufferToWav(buffer) {
-            const length = buffer.length * buffer.numberOfChannels * 2 + 44;
-            const arrayBuffer = new ArrayBuffer(length);
-            const view = new DataView(arrayBuffer);
+            const numChannels = buffer.numberOfChannels;
+            const sampleRate = buffer.sampleRate;
+            const format = 1; // PCM
+            const bitDepth = 16;
+
+            const result = new ArrayBuffer(44 + buffer.length * numChannels * 2);
+            const view = new DataView(result);
 
             // RIFF header
             writeString(view, 0, 'RIFF');
-            view.setUint32(4, 36 + buffer.length * buffer.numberOfChannels * 2, true);
+            view.setUint32(4, 36 + buffer.length * numChannels * 2, true);
             writeString(view, 8, 'WAVE');
             // fmt subchunk
             writeString(view, 12, 'fmt ');
             view.setUint32(16, 16, true);
-            view.setUint16(20, 1, true);
-            view.setUint16(22, buffer.numberOfChannels, true);
-            view.setUint32(24, buffer.sampleRate, true);
-            view.setUint32(28, buffer.sampleRate * buffer.numberOfChannels * 2, true);
-            view.setUint16(32, buffer.numberOfChannels * 2, true);
-            view.setUint16(34, 16, true);
+            view.setUint16(20, format, true);
+            view.setUint16(22, numChannels, true);
+            view.setUint32(24, sampleRate, true);
+            view.setUint32(28, sampleRate * numChannels * (bitDepth / 8), true);
+            view.setUint16(32, numChannels * (bitDepth / 8), true);
+            view.setUint16(34, bitDepth, true);
             // data subchunk
             writeString(view, 36, 'data');
-            view.setUint32(40, buffer.length * buffer.numberOfChannels * 2, true);
+            view.setUint32(40, buffer.length * numChannels * 2, true);
 
-            // Write PCM samples
+            // Write samples
             let offset = 44;
             for (let i = 0; i < buffer.length; i++) {
-                for (let channel = 0; channel < buffer.numberOfChannels; channel++) {
-                    const sample = Math.max(-1, Math.min(1, buffer.getChannelData(channel)[i]));
+                for (let channel = 0; channel < numChannels; channel++) {
+                    let sample = buffer.getChannelData(channel)[i];
+                    sample = Math.max(-1, Math.min(1, sample));
                     view.setInt16(offset, sample < 0 ? sample * 0x8000 : sample * 0x7FFF, true);
                     offset += 2;
                 }
             }
 
-            return new Blob([arrayBuffer], { type: 'audio/wav' });
+            return new Blob([result], { type: 'audio/wav' });
         }
 
         function writeString(view, offset, string) {
